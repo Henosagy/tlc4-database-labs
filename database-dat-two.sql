@@ -53,7 +53,6 @@ inner join titles t on p.pub_id = t.pub_id
 
 -- For each title_id in the table titles, rollup the corresponding qty in sales and show:
 -- title_id, title, ord_num and the rolled-up value as a column aggregate called Total Sold
- 
 select t.title_id as "Title ID", t.title as "Title Name", s.ord_num as "Order Number" , s.qty as "Total Sold"
 from titles t inner join sales s  on t.title_id = s.title_id 
 order by t.title_id 
@@ -93,8 +92,6 @@ inner join authors a on a.city = p.city
 
 -- Refine 1 so that an outer join is performed. All of the publishers from the first table should be shown, 
 -- not just those with pr_info information in pub_info. You should use the ANSI SQL92 syntax.
-
-
 select p.pub_name as "Publisher name", substring(pi2.pr_info, 1, 40) as "First 40 characters" 
 from publishers p full outer join pub_info pi2 
 on p.pub_id = pi2.pub_id 
