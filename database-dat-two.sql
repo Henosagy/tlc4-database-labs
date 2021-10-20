@@ -73,6 +73,12 @@ inner join sales s2 on s.stor_id = s2.stor_id
 inner join discounts d on s2.stor_id = d.stor_id 
 order by s2.ord_num 
 
+select s.stor_id, s2.ord_num, d.discount, d.discounttype
+from stores s 
+inner join sales s2 on s.stor_id = s2.stor_id 
+left outer join discounts d on s2.stor_id = d.stor_id 
+order by s2.ord_num 
+
 -- Show au_lname from authors, and pub_name from publishers when both publisher and author live in the same city.
 select a.au_fname || ' ' || a.au_lname as "Author's name", p.pub_name as "Publisher's Name", 
 a.city as "Author's city", p.city as "Publisher's city"
