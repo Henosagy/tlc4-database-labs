@@ -1,0 +1,153 @@
+-- Which publishers have published at least one book?
+select p.pub_name from publishers p 
+where p.pub_id in (
+	select t.pub_id from titles t 
+)
+
+-- Which authors have been published by more than one publisher?
+select au_id from
+(
+	select ta.au_id , ta.title_id , t.pub_id , count(pub_id)
+	from titleauthor ta inner join titles t 
+	on ta.title_id = t.title_id 
+	group by ta.au_id , ta.title_id ,t.pub_id  
+) as "author_publisher"
+group by au_id
+having count(au_id) > 1
+
+--select t.au_lname from titleview t 
+--where t.pub_id in (
+--	select p.pub_id from publishers p 
+--	group by p.pub_id 
+--	having count(p.pub_id) > 1
+--) 	
+--
+--select t.au_lname,
+--(select t2.pub_id from titleview t2 
+--  group by t2.pub_id 
+--  having count(t2.pub_id) > 1
+--) from titleview t 
+
+
+
+
+select * 
+-- Which authors live in a city where a publisher exists?
+select a.au_fname, a.au_lname, a.city from authors a 
+where a.city = any (
+	select p.city from publishers p
+)
+ 
+-- How many authors are there with the same first initial?
+select sum(count) from (
+select (left(a.au_fname,1)), count(left(a.au_fname,1))
+from authors a
+group by (left(a.au_fname,1))) as firstt
+where count > 1;
+
+
+--select count(left(a.au_lname, 1)) - count(distinct(left(a.au_lname, 1))) from authors a 
+--where left(a.au_lname, 1)  = any(
+--	select distinct(left(a2.au_lname,1)) from authors a2 
+--)
+--
+--select count(left(a.au_fname, 1)) - count(distinct(left(a.au_fname, 1))) from authors a 
+--where left(a.au_fname, 1)  = any(
+--	select left(a2.au_fname,1) from authors a2 
+--	group by a2.au_fname
+--)
+
+
+
+-- What is the most expensive book?
+select t.title, t.price from titles t 
+where t.price >=  (
+	select max(t2.price) from titles t2
+)
+
+-- Which is the oldest published book? Which is the youngest?
+select t.title, t.pubdate from titles t 
+where t.pubdate >= (
+	select max(t2.pubdate) from titles t2 
+)
+
+select t.title, t.pubdate from titles t 
+where t.pubdate <= (
+	select min(t2.pubdate) from titles t2 
+)
+
+-- Which books are more expensive than all books of any other type?
+select t1.type, max(t1.price) from titles t1
+group by t1.type
+having  max(t1.price) >= any(
+	select max(t.price) from titles t 
+)
+order by max(t1.price) desc 
+
+select t1.title, max(t1.price) from titles t1
+group by t1.title
+having  max(t1.price) >= any(
+	select max(t.price) from titles t 
+)
+order by max(t1.price) 
+
+
+
+-- Which books have an above average price for their type?
+select title, t1.type, price
+from titles t1
+where price::numeric > (
+	select avg(price::numeric)
+	from titles t2
+	where t2.type = t1.type
+)
+order by type;
+
+--select t1.type, avg(t1.price::numeric) from titles t1
+--group by t1.type
+--having  avg(t1.price::numeric) >= any(
+--	select avg(t.price::numeric) from titles t 
+--)
+--order by avg(t1.price::numeric) desc limit 1
+--
+--select t1.title, avg(t1.price::numeric) from titles t1
+--group by t1.title
+--having  avg(t1.price::numeric) >= any(
+--	select avg(t.price::numeric) from titles t 
+--)
+--order by avg(t1.price::numeric) desc
+
+
+-- How much above or below the "average price of all books" is the price for each book?
+select t.title, (t.price::numeric - (select(avg(t1.price::numeric)) from titles t1)) as "Difference" from titles t
+
+
+--------------------------------------------------------------------------------------------------------------------
+-- Create a new view called ExpensiveBooks which just shows books whose price is above the average for all books. 
+-- Remember to include your initials as part of the view name to avoid collisoins with other users' views.
+create view ExpensiveBooksHOA as 
+select t.title_id , t.title  from titles t
+group by t.title_id, t.title
+having t.price::numeric > (select avg(t2.price::numeric) from titles t2)
+
+-- Create a view called WhoWroteWhat which lists authors and their work.
+create view WhoWroteWhat as 
+select a.au_fname || ' ' || a.au_lname as "Author",
+t2.title as "Work"
+from authors a inner join titleauthor t 
+on a.au_id = t.au_id inner join titles t2 
+on t.title_id = t2.title_id 
+
+-- Create a new view which lists just publisher and title details based on the ExpensiveBooks view you defined earlier.
+-- Which columns in your new view can be updated?
+create view ExpensiveBooksPublisher as
+select p.pub_name as "Publisher", e.title as "Book Title"
+from expensivebookshoa e inner join titles t 
+on e.title_id = t.title_id inner join publishers p 
+on t.pub_id = p.pub_id 
+
+-- Create a new view which shows the average prices of titles for each type along with a count of the books of that type.
+-- Use the view to query for the most expensive type of book and to query (separately) for the most common type of book.
+create view AverageCountTitles as
+select t.type, avg(t.price::numeric), count(t.type) from titles t 
+group by t.type
