@@ -90,4 +90,16 @@ on d.location_id = l.location_id
 inner join countries c
 on l.country_id = c.country_id
 
+-- Write a query to list employee last names who were hired after ‘Bull’.
+select e.last_name, e.hire_date from employees e 
+where e.hire_date > (select e1.hire_date from employees e1 where e1.last_name = 'Bull') 
+
+-- --Write a query that shows the name, the location and the number of employees for department. 
+-- Make sure all departments are included even the ones without employees.
+select d.department_name as "Department Name", 
+l.street_address || ', ' || l.city as "Department Address",
+(select count(e.department_id) from employees e where e.department_id = d.department_id) as "Number of employees"
+from departments d
+inner join locations l
+on d.location_id = l.location_id
 
