@@ -40,3 +40,21 @@ select last_name  from employees where last_name like '__e%';
 
 -- List all employees that have a commission of 20%
 select * from employees where commission_pct = '0.2';
+
+-- Write a query to list all employees their last name their salary and include a new salary column which is their original salary plus a 30% increase.
+select last_name as "Last Name", salary as "Salary", (salary + (salary * 0.3)) as "New Salary" from employees 
+
+-- Write a query that lists the employees last name and the length of the last name.
+select last_name, length(last_name) from employees
+
+-- Write a query that lists employee last name and calculate how many weeks they have worked for the company. Hint: (current_date-hire_date).
+select last_name, round((current_date - hire_date)/7) as "Weeks hired" from employees
+
+-- Write a query that Returns employee last name in uppercase and employ first name in lowercase.
+select upper(last_name), lower(first_name) from employees
+
+-- Write a query that lists the highest salary, The sum of all salaries, the average salary and the minimum salary of all employees.
+select max(salary), min(salary), avg(salary), sum(salary) from employees
+
+-- Write a query to display the number of people working in each department.
+ select department_id, count(department_id) from employees group by department_id
