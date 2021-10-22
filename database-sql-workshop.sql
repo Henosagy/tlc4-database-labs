@@ -103,3 +103,20 @@ from departments d
 inner join locations l
 on d.location_id = l.location_id
 
+
+-- Write a query that shows employees last name, their managers last name, but only if the manager has a salary higher than 15000.
+-- The query should return employer name manager name manager salary and the job title of the manager. 
+-- Hint: you need to join employees to employees and to jobs.
+select e.last_name as "Employee's Last Name", m.last_name as "Manager's Last Name",
+m.salary as "Manager Salary", j.job_title as "Job Title"
+from employees e
+inner join employees m on m.employee_id = e.manager_id
+inner join jobs j on m.job_id = j.job_id
+where m.salary > 15000
+
+-- Write a query that returns the department number, department name, number and where the department has less than 3 employees.
+select d.department_id, d.department_name as "Department Name",
+(select count(e.department_id) from employees e where e.department_id = d.department_id) as "Number of employees"
+from departments d
+where (select count(e1.department_id) from employees e1 where e1.department_id = d.department_id)  < 3
+
