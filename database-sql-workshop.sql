@@ -58,3 +58,36 @@ select max(salary), min(salary), avg(salary), sum(salary) from employees
 
 -- Write a query to display the number of people working in each department.
  select department_id, count(department_id) from employees group by department_id
+
+-- Write a query to determine the number of Managers in the employees table. Hint: the result is 18.
+select count(distinct(manager_id)) from employees
+
+-- Write a query to find the difference between the highest and the lowest salary give the column alias of difference.
+select (max(salary) - min(salary)) as "Difference" from employees
+
+-- Write a query to display the manager number and the salary of the highest paid employee for that manager.
+select manager_id, max(salary) as "max" from employees where manager_id is not null group by manager_id order by "max" desc fetch first 1 rows only
+
+-- Write a query that lists the employee first name, last name, job id and department name for all employees and their departments.
+---Hint: you need to join the employees and department tables for this.
+select e.first_name, e.last_name, e.job_id, d.department_name
+from employees e inner join departments d
+on e.department_id = d.department_id
+
+-- Write a query that joins the employees table to the employees table so you can display an employee last name and their managers last name. 
+-- Hint: remember to give the employees tables two different aliases.
+select e.last_name as "Employee Last Name", m.last_name as "Manager Last Name"
+from employees e left join employees m
+on m.employee_id = e.manager_id 
+order by m.last_name
+
+-- Write a query that shows the names and addresses of all departments. You need to join locations, countries and departments.
+select d.department_name as "Department Name", l.street_address || ', ' || l.city 
+|| ', ' || l.state_province || ', ' || c.country_name as "Address"
+from departments d
+inner join locations l
+on d.location_id = l.location_id
+inner join countries c
+on l.country_id = c.country_id
+
+
